@@ -137,11 +137,15 @@ module.exports = function (schema, options) {
                 }
 
                 schema.statics[method] = function () {
-                    if (use$neOperator) {
-                        return Model[modelMethodName].apply(this, arguments).where('deleted').ne(true);
-                    } else {
-                        return Model[modelMethodName].apply(this, arguments).where({deleted: false});
+                    var query = Model[modelMethodName].apply(this, arguments);
+                    if (!arguments[2] || arguments[2].withDeleted !== true) {
+                        if (use$neOperator) {
+                            return query.where('deleted').ne(true);
+                        } else {
+                            return query.where({deleted: false});
+                        }
                     }
+                    return query;
                 };
                 schema.statics[method + 'Deleted'] = function () {
                     if (use$neOperator) {
